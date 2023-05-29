@@ -1,7 +1,5 @@
 from django.urls import path
 from django.views.generic import TemplateView
-from django.shortcuts import render
-# from django.template import RequestContext
 
 
 app_name = 'pages'

@@ -14,24 +14,32 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from django.conf import settings
 from django.shortcuts import render
+from django.contrib.auth.forms import UserCreationForm
+from django.views.generic.edit import CreateView
 
 urlpatterns = [
     path('', include('blog.urls', namespace='blog')),
     path('category/', include('blog.urls', namespace='category_posts')),
     path('posts/', include('blog.urls', namespace='post_detail')),
     path('pages/', include('pages.urls', namespace='pages')),
-
-    path('admin/', admin.site.urls)
+    path('auth/', include('django.contrib.auth.urls')),
+    path('admin/', admin.site.urls),
+    path('auth/registration/',
+         CreateView.as_view(template_name='registration/registration_form.html',
+                            form_class=UserCreationForm,
+                            success_url=reverse_lazy('login'),
+                            ),
+         name='registration',
+        ),
 ]
 
-# Если проект запущен в режиме разработки...
 if settings.DEBUG:
     import debug_toolbar
-# Добавить к списку urlpatterns список адресов из приложения debug_toolbar:
     urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
+
 
 def handler404(request, *args, **argv):
     response = render(request, 'pages/404.html', status=404)
