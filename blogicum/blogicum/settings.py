@@ -23,9 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e-cyd28ejdpt1ze8y%dt20)l(z61=u8igdpoz2u=yd3zn4erp-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1'
+    ] 
 
 
 # Application definition
@@ -137,3 +140,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'

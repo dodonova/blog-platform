@@ -16,12 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.shortcuts import render
 
 urlpatterns = [
     path('', include('blog.urls', namespace='blog')),
     path('category/', include('blog.urls', namespace='category_posts')),
     path('posts/', include('blog.urls', namespace='post_detail')),
     path('pages/', include('pages.urls', namespace='pages')),
+
     path('admin/', admin.site.urls)
 ]
 
@@ -30,3 +32,12 @@ if settings.DEBUG:
     import debug_toolbar
 # Добавить к списку urlpatterns список адресов из приложения debug_toolbar:
     urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
+
+def handler404(request, *args, **argv):
+    response = render(request, 'pages/404.html', status=404)
+    return response
+
+
+def handler500(request, *args, **argv):
+    response = render(request, 'pages/500.html', status=500)
+    return response
