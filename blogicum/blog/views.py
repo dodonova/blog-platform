@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
 
 from blog.models import Post, Category
 
+ 
 
 def index(request):
     template = 'blog/index.html'
-    # posts = get_full_public_posts_info().order_by('-pub_date')[:5]
     posts = Post.public_objects.all().order_by('-pub_date')[:5]
-    context = {'post_list': posts}
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {'page_obj': page_obj}
     return render(request, template, context)
 
 
@@ -30,6 +34,9 @@ def category_posts(request, category_slug):
     post_list = Post.public_objects.all().filter(
         category__slug__exact=category_slug,
     )
+    paginator = Paginator(post_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {'category': category,
-               'post_list': post_list}
+               'page_obj': page_obj}
     return render(request, template, context)
