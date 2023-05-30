@@ -99,7 +99,11 @@ class Post(BaseModel):
         on_delete=models.SET_NULL,
         verbose_name='Категория'
         )
-
+    image = models.ImageField(
+        verbose_name='Изображение',
+        blank=True,
+        upload_to='blog_images'
+        )
     objects = models.Manager()
     public_objects = PublicPostsManager()
 
