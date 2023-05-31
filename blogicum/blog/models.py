@@ -134,6 +134,6 @@ class Comment(models.Model):
         ordering = ('created_at',)
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
-    
+
     def __str__(self) -> str:
         return f'{self.created_at}: {self.text[:20]}...'

@@ -1,10 +1,9 @@
-from typing import Any, Optional
-from django.db import models
+from typing import Any
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponseForbidden
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import get_user_model
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     CreateView,
@@ -32,7 +31,6 @@ class BlogListView(ListView):
         for post in context['object_list']:
             post.comment_count = post.comments.count()
         return context
-  
 
 
 class ByCategoryListView(ListView):
@@ -97,7 +95,6 @@ class PostDetailView(DetailView):
             self.object.comments.select_related('author')
         )
         return context
-
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -180,7 +177,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'pk': self.kwargs['pk']}
+        )
+
 
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
     model = Comment
@@ -197,7 +198,10 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
         return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
 
     def get_success_url(self):
-        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'pk': self.kwargs['pk']}
+        )
 
 
 class CommentDeleteView(LoginRequiredMixin, DeleteView):
@@ -214,7 +218,10 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
         return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
 
     def get_success_url(self):
-        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'pk': self.kwargs['pk']}
+        )
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

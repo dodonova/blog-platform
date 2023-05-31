@@ -17,7 +17,6 @@ def csrf_failure(request, reason=''):
 def page_not_found(request, exception):
     return render(request, 'pages/404.html', status=404)
 
+
 def page_forbidden(request):
     return render(request, 'pages/500.html', status=500)
-
-
