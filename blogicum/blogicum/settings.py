@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'blog.apps.BlogConfig',
+    'core.apps.CoreConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -143,7 +144,7 @@ INTERNAL_IPS = [
 ]
 
 
-CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 LOGIN_REDIRECT_URL = 'blog:index'
 LOGIN_URL = 'login'
