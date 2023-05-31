@@ -1,9 +1,10 @@
-from typing import Any
+from typing import Any, Optional
+from django.db import models
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import get_user_model
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     CreateView,
@@ -13,16 +14,10 @@ from django.views.generic import (
     DeleteView
     )
 
-from .models import Post, Category
-from .forms import PostForm
+from .models import Post, Category, Comment
+from .forms import PostForm, CommentForm
 
 User = get_user_model()
-
-# class PostMixin:
-#     model = Post
-#     queryset = Post.objects.select_related('author'
-#                     ).select_related('location'
-#                     ).select_related('category')
 
 
 class BlogListView(ListView):
@@ -31,6 +26,13 @@ class BlogListView(ListView):
     template_name = 'blog/index.html'
     ordering = ['-pub_date']
     paginate_by = 10
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        for post in context['object_list']:
+            post.comment_count = post.comments.count()
+        return context
+  
 
 
 class ByCategoryListView(ListView):
@@ -52,6 +54,8 @@ class ByCategoryListView(ListView):
             slug=self.kwargs.get('category_slug')
         )
         context['category'] = category
+        for post in context['object_list']:
+            post.comment_count = post.comments.count()
         return context
 
 
@@ -76,6 +80,8 @@ class ByProfileListView(ListView):
             )
         context["user"] = self.request.user
         context["profile"] = profile
+        for post in context['object_list']:
+            post.comment_count = post.comments.count()
         return context
 
 
@@ -84,11 +90,19 @@ class PostDetailView(DetailView):
     template_name = 'blog/detail.html'
     context_object_name = 'post'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CommentForm()
+        context['comments'] = (
+            self.object.comments.select_related('author')
+        )
+        return context
 
-class PostCreateView(CreateView, LoginRequiredMixin):
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:index')
     form_class = PostForm
 
     def form_valid(self, form):
@@ -111,21 +125,21 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
         instance = get_object_or_404(Post, pk=kwargs['pk'])
         if instance.author != request.user:
-            raise HttpResponseForbidden
+            return redirect('blog:post_detail', pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse_lazy('blog:post_detail', kwargs={'pk': self.object.pk})
 
 
-class PostDeleteView(DeleteView, LoginRequiredMixin):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'blog/create.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
         instance = get_object_or_404(Post, pk=kwargs['pk'])
         if instance.author != request.user:
-            raise HttpResponseForbidden
+            return redirect('blog:post_detail', pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -135,7 +149,7 @@ class PostDeleteView(DeleteView, LoginRequiredMixin):
         )
 
 
-class UserUpdateView(UpdateView, LoginRequiredMixin):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     fields = (
         'username',
@@ -153,3 +167,57 @@ class UserUpdateView(UpdateView, LoginRequiredMixin):
             'blog:profile',
             kwargs={'username': self.object.username}
         )
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'includes/comments.html'
+
+    def form_valid(self, form):
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+
+class CommentUpdateView(LoginRequiredMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment.html'
+
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        instance = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+        if instance.author != request.user:
+            return redirect('blog:post_detail', pk=self.kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+
+
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment.html'
+
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        instance = get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+        if instance.author != request.user:
+            return redirect('blog:post_detail', pk=self.kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return get_object_or_404(Comment, pk=self.kwargs['comment_pk'])
+
+    def get_success_url(self):
+        return reverse_lazy('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.author == self.request.user:
+            self.object.delete()
+        return redirect(self.get_success_url())

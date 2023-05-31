@@ -149,4 +149,6 @@ dmypy.json
 media/
 static_dev/
 sent_emails/
+*zip
+db.json
 

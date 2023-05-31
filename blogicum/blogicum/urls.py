@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include, reverse_lazy
 from django.conf import settings
 from django.shortcuts import render
+
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 
@@ -47,12 +48,14 @@ if settings.DEBUG:
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+handler404 = 'pages.views.page_not_found'
+handler500 = 'pages.views.page_forbidden'
 
-def handler404(request, *args, **argv):
-    response = render(request, 'pages/404.html', status=404)
-    return response
+# def handler404(request, *args, **argv):
+#     response = render(request, 'pages/404.html', status=404)
+#     return response
 
 
-def handler500(request, *args, **argv):
-    response = render(request, 'pages/500.html', status=500)
-    return response
+# def handler500(request, *args, **argv):
+#     response = render(request, 'pages/500.html', status=500)
+#     return response

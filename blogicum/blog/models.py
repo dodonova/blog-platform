@@ -113,3 +113,27 @@ class Post(BaseModel):
 
     def __str__(self) -> str:
         return f'{self.text} ({self.pub_date.strftime("%d.%m.%Y")})'
+
+
+class Comment(models.Model):
+    text = models.TextField(
+        verbose_name='Комментарий'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        ordering = ('created_at',)
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
+    
+    def __str__(self) -> str:
+        return f'{self.created_at}: {self.text[:20]}...'

@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e-cyd28ejdpt1ze8y%dt20)l(z61=u8igdpoz2u=yd3zn4erp-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -146,6 +146,7 @@ INTERNAL_IPS = [
 CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
 LOGIN_REDIRECT_URL = 'blog:index'
+LOGIN_URL = 'login'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
