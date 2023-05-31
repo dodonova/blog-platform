@@ -11,7 +11,7 @@ from django.views.generic import (
     DetailView,
     ListView,
     DeleteView
-    )
+)
 
 from .models import Post, Category, Comment
 from .forms import PostForm, CommentForm
@@ -41,9 +41,8 @@ class ByCategoryListView(ListView):
 
     def get_queryset(self):
         category_slug = self.kwargs.get('category_slug')
-        return Post.public_objects.all().filter(
-            category__slug=category_slug
-            ).order_by('-pub_date')
+        return Post.public_objects.all(
+        ).filter(category__slug=category_slug).order_by('-pub_date')
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
@@ -67,7 +66,7 @@ class ByProfileListView(ListView):
         username = self.kwargs.get('username')
         post_list = Post.objects.all().filter(
             author__username=username
-            ).order_by('-pub_date')
+        ).order_by('-pub_date')
         return post_list
 
     def get_context_data(self, **kwargs):
@@ -75,7 +74,7 @@ class ByProfileListView(ListView):
         user = self.kwargs.get('username')
         profile = get_object_or_404(
             User.objects.filter(username__exact=user)
-            )
+        )
         context["user"] = self.request.user
         context["profile"] = profile
         for post in context['object_list']:

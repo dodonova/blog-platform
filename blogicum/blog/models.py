@@ -12,11 +12,11 @@ class BaseModel(models.Model):
         default=True,
         verbose_name='Опубликовано',
         help_text='Снимите галочку, чтобы скрыть публикацию.'
-        )
+    )
     created_at = models.DateTimeField(
         verbose_name='Добавлено',
         auto_now_add=True
-        )
+    )
 
     class Meta:
         abstract = True
@@ -26,7 +26,7 @@ class Location(BaseModel):
     name = models.CharField(
         max_length=256,
         verbose_name='Название места'
-        )
+    )
 
     class Meta:
         verbose_name = 'местоположение'
@@ -40,7 +40,7 @@ class Category(BaseModel):
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
-        )
+    )
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         unique=True,
@@ -48,7 +48,7 @@ class Category(BaseModel):
         help_text=('Идентификатор страницы для URL; '
                    'разрешены символы латиницы, цифры, '
                    'дефис и подчёркивание.')
-        )
+    )
 
     class Meta:
         verbose_name = 'категория'
@@ -75,13 +75,13 @@ class Post(BaseModel):
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
-        )
+    )
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
         help_text=('Если установить дату и время в будущем '
                    '— можно делать отложенные публикации.')
-        )
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -92,18 +92,18 @@ class Post(BaseModel):
         blank=True,
         on_delete=models.SET_NULL,
         verbose_name='Местоположение'
-        )
+    )
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
         verbose_name='Категория'
-        )
+    )
     image = models.ImageField(
         verbose_name='Изображение',
         blank=True,
         upload_to='blog_images'
-        )
+    )
     objects = models.Manager()
     public_objects = PublicPostsManager()
 
