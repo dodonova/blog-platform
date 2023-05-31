@@ -1,4 +1,5 @@
 from typing import Any
+from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -21,16 +22,11 @@ User = get_user_model()
 
 class BlogListView(ListView):
     model = Post
-    queryset = Post.public_objects.all()
+    queryset = Post.public_objects.annotate(
+        comment_count=Count("comments"))
     template_name = 'blog/index.html'
     ordering = ['-pub_date']
     paginate_by = 10
-
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        for post in context['object_list']:
-            post.comment_count = post.comments.count()
-        return context
 
 
 class ByCategoryListView(ListView):
@@ -221,9 +217,3 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
             'blog:post_detail',
             kwargs={'pk': self.kwargs['pk']}
         )
-
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if self.object.author == self.request.user:
-            self.object.delete()
-        return redirect(self.get_success_url())
