@@ -68,7 +68,7 @@ class PublicPostsManager(models.Manager):
             pub_date__lte=date.today(),
             is_published=True,
             category__is_published=True
-        )
+        ).order_by('-pub_date')
 
 
 class Post(BaseModel):

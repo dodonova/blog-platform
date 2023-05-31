@@ -20,20 +20,19 @@ from .forms import PostForm, CommentForm
 User = get_user_model()
 
 
-class BlogListView(ListView):
+class PostsPublicListView(ListView):
     model = Post
     queryset = Post.public_objects.annotate(
         comment_count=Count("comments"))
+    paginate_by = 10
+
+
+class BlogListView(PostsPublicListView):
     template_name = 'blog/index.html'
-    ordering = ['-pub_date']
-    paginate_by = 10
 
 
-class ByCategoryListView(ListView):
-    model = Post
+class ByCategoryListView(PostsPublicListView):
     template_name = 'blog/category.html'
-    # ordering = 'title'
-    paginate_by = 10
 
     def get_queryset(self):
         category_slug = self.kwargs.get('category_slug')
@@ -47,16 +46,11 @@ class ByCategoryListView(ListView):
             slug=self.kwargs.get('category_slug')
         )
         context['category'] = category
-        for post in context['object_list']:
-            post.comment_count = post.comments.count()
         return context
 
 
-class ByProfileListView(ListView):
-    model = Post
+class ByProfileListView(PostsPublicListView):
     template_name = 'blog/profile.html'
-    ordering = 'title'
-    paginate_by = 10
 
     def get_queryset(self) -> QuerySet[Any]:
         username = self.kwargs.get('username')
@@ -73,8 +67,6 @@ class ByProfileListView(ListView):
         )
         context["user"] = self.request.user
         context["profile"] = profile
-        for post in context['object_list']:
-            post.comment_count = post.comments.count()
         return context
 
 
