@@ -8,6 +8,10 @@ User = get_user_model()
 
 
 class BaseModel(models.Model):
+    """
+    Base model representing common attributes for other models
+    such as Post, Category, Location.
+    """
     is_published = models.BooleanField(
         default=True,
         verbose_name='Опубликовано',

@@ -21,6 +21,9 @@ User = get_user_model()
 
 
 class PostsPublicListView(ListView):
+    """
+    View to display a list of public posts with pagination.
+    """
     model = Post
     queryset = Post.public_objects.annotate(
         comment_count=Count("comments"))
@@ -28,10 +31,16 @@ class PostsPublicListView(ListView):
 
 
 class BlogListView(PostsPublicListView):
+    """
+    View to display a list of public posts on the blog's index page.
+    """
     template_name = 'blog/index.html'
 
 
 class ByCategoryListView(PostsPublicListView):
+    """
+    View to display a list of public posts filtered by category.
+    """
     template_name = 'blog/category.html'
 
     def get_queryset(self):
@@ -53,6 +62,9 @@ class ByProfileListView(PostsPublicListView):
     template_name = 'blog/profile.html'
 
     def get_queryset(self) -> QuerySet[Any]:
+        """
+        Get the queryset of posts filtered by category.
+        """
         username = self.kwargs.get('username')
         post_list = Post.objects.all().filter(
             author__username=username
@@ -60,6 +72,9 @@ class ByProfileListView(PostsPublicListView):
         return post_list
 
     def get_context_data(self, **kwargs):
+        """
+        Add category to the context data.
+        """
         context = super().get_context_data(**kwargs)
         user = self.kwargs.get('username')
         profile = get_object_or_404(
@@ -71,6 +86,9 @@ class ByProfileListView(PostsPublicListView):
 
 
 class PostDetailView(DetailView):
+    """
+    View to display the details of a single post.
+    """
     model = Post
     template_name = 'blog/detail.html'
     context_object_name = 'post'
@@ -85,15 +103,24 @@ class PostDetailView(DetailView):
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    View to create a new blog post.
+    """
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
 
     def form_valid(self, form):
+        """
+        Set the author of the post as the current user.
+        """
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
+        """
+        Redirect to the profile page after successful post creation.
+        """
         return reverse_lazy(
             'blog:profile',
             kwargs={'username': self.request.user.username}
@@ -101,12 +128,18 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    View to update an existing blog post.
+    """
     model = Post
     fields = '__all__'
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:index')
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        """
+        Check if the user is the author of the post before allowing update.
+        """
         instance = get_object_or_404(Post, pk=kwargs['pk'])
         if instance.author != request.user:
             return redirect('blog:post_detail', pk=kwargs['pk'])
@@ -117,10 +150,16 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    View to delete an existing blog post.
+    """
     model = Post
     template_name = 'blog/create.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        """
+        Check if the user is the author of the post before allowing delete.
+        """
         instance = get_object_or_404(Post, pk=kwargs['pk'])
         if instance.author != request.user:
             return redirect('blog:post_detail', pk=kwargs['pk'])
@@ -134,6 +173,9 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    View to update the user profile.
+    """    
     model = User
     fields = (
         'username',
@@ -144,9 +186,15 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'blog/user.html'
 
     def get_object(self, queryset=None):
+        """
+        Get the current user's profile.
+        """
         return self.request.user
 
     def get_success_url(self):
+        """
+        Redirect to the user profile page after successful update.
+        """
         return reverse_lazy(
             'blog:profile',
             kwargs={'username': self.object.username}
@@ -154,6 +202,9 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    View to create a new comment on a post.
+    """
     model = Comment
     form_class = CommentForm
     template_name = 'includes/comments.html'
@@ -171,6 +222,9 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    View to update an existing comment on a post.
+    """
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
