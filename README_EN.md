@@ -13,7 +13,7 @@ git clone git@github.com:dodonova/blog-platform.git
 ```
 
 ```
-cd api_final_yatube
+cd blog-platform
 ```
 
 Create and activate a virtual environment:

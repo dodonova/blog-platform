@@ -27,6 +27,9 @@ class BaseModel(models.Model):
 
 
 class Location(BaseModel):
+    """
+    Model representing a location where posts can be associated.
+    """
     name = models.CharField(
         max_length=256,
         verbose_name='Название места'
@@ -41,6 +44,9 @@ class Location(BaseModel):
 
 
 class Category(BaseModel):
+    """
+    Model representing a category for posts.
+    """
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
@@ -63,6 +69,9 @@ class Category(BaseModel):
 
 
 class PublicPostsManager(models.Manager):
+    """
+    Manager to retrieve only public posts.
+    """
     def get_queryset(self) -> QuerySet:
         return super().get_queryset().select_related(
             'location',
@@ -76,6 +85,9 @@ class PublicPostsManager(models.Manager):
 
 
 class Post(BaseModel):
+    """
+    Model representing a blog post.
+    """
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
@@ -120,6 +132,9 @@ class Post(BaseModel):
 
 
 class Comment(models.Model):
+    """
+    Model representing a comment on a blog post.
+    """
     text = models.TextField(
         verbose_name='Комментарий'
     )
